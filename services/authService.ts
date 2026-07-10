@@ -58,9 +58,9 @@ class AuthService {
                 id: user.id,
                 name: user.name,
                 email: user.email,
-                isSuperAdmin,
-                permissions,
             },
+            isSuperAdmin,
+            permissions,
         };
     }
 
@@ -113,9 +113,9 @@ class AuthService {
                 id: user.id,
                 name: user.name,
                 email: user.email,
-                isSuperAdmin,
-                permissions,
             },
+            isSuperAdmin,
+            permissions,
         };
     }
 

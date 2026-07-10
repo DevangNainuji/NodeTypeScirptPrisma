@@ -4,14 +4,14 @@ type AuthUser {
     id: ID!
     name: String!
     email: String!
-    isSuperAdmin: Boolean
-    permissions: [String!]!
 }
 
 type AuthResponse {
     success: Boolean!
     message: String!
     user: AuthUser
+    isSuperAdmin: Boolean
+    permissions: [String!]!
 }
 
 type Mutation {
