@@ -49,7 +49,7 @@ class AuthService {
             refreshToken
         );
 
-        const permissions = await permissionService.getUserPermissions(user.id);
+        const { permissions, isSuperAdmin } = await permissionService.getUserPermissions(user.id);
 
         return {
             success: true,
@@ -58,6 +58,7 @@ class AuthService {
                 id: user.id,
                 name: user.name,
                 email: user.email,
+                isSuperAdmin,
                 permissions,
             },
         };
@@ -104,8 +105,7 @@ class AuthService {
             refreshToken
         );
 
-        const permissions = await permissionService.getUserPermissions(user.id);
-
+        const { permissions, isSuperAdmin } = await permissionService.getUserPermissions(user.id);
         return {
             success: true,
             message: "Token refreshed",
@@ -113,6 +113,7 @@ class AuthService {
                 id: user.id,
                 name: user.name,
                 email: user.email,
+                isSuperAdmin,
                 permissions,
             },
         };
