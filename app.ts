@@ -11,6 +11,7 @@ import { env } from "./utils/env.js";
 
 const host: string = env.APP_HOST;
 const port: number = env.APP_PORT;
+const frontendUrl: string = env.FRONTEND_URL;
 
 async function startServer(): Promise<void> {
     const app: Express = express();
@@ -26,7 +27,10 @@ async function startServer(): Promise<void> {
 
     app.use(
         "/graphql",
-        cors(),
+        cors({
+            origin: frontendUrl,
+            credentials: true,
+        }),
         bodyParser.json(),
         expressMiddleware(server, {
             context: async ({ req, res }) => {

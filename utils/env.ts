@@ -17,4 +17,6 @@ export const env = {
 
     ACCESS_EXPIRES: "15m",
     REFRESH_EXPIRES: "7d",
+
+    FRONTEND_URL: process.env.FRONTEND_URL || "http://localhost:3000",
 };

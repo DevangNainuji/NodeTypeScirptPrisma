@@ -1,18 +1,18 @@
-import jwt from "jsonwebtoken";
+import jwt, { SignOptions } from "jsonwebtoken";
 import { env } from "../utils/env.js";
 
-const ACCESS_SECRET = env.ACCESS_EXPIRES;
-const REFRESH_SECRET = env.REFRESH_EXPIRES;
+const ACCESS_SECRET = env.ACCESS_SECRET;
+const REFRESH_SECRET = env.REFRESH_SECRET;
 
 export const generateAccessToken = (payload: any) => {
-    return jwt.sign(payload, ACCESS_SECRET, {
-        expiresIn: "15m",
+    return jwt.sign(payload, env.ACCESS_SECRET, {
+        expiresIn: env.ACCESS_EXPIRES as SignOptions["expiresIn"],
     });
 };
 
 export const generateRefreshToken = (payload: any) => {
-    return jwt.sign(payload, REFRESH_SECRET, {
-        expiresIn: "7d",
+    return jwt.sign(payload, env.REFRESH_SECRET, {
+        expiresIn: env.REFRESH_EXPIRES as SignOptions["expiresIn"],
     });
 };
 
