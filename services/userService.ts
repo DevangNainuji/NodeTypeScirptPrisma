@@ -5,30 +5,24 @@ import {
     CreateUserArgs,
     UpdateUserArgs,
 } from "../types/userType.js";
+import { GraphQLResolveInfo } from "graphql";
+import { getPrismaSelect } from "../utils/getPrismaSelect.js";
+import { userMappings } from "../graphql/mappings/userMapping.js";
 
 class UserService {
 
-    async getUsers({ id }: GetUserArgs) {
+    async getUsers({ id }: GetUserArgs, info: GraphQLResolveInfo) {
+
+        const select = getPrismaSelect(info, undefined, userMappings);
 
         const users = await prisma.user.findMany({
             ...(id && {
                 where: { id },
             }),
-            include: {
-                userRoles: {
-                    include: {
-                        role: {
-                            select: {
-                                id: true,
-                                name: true,
-                            },
-                        },
-                    },
-                },
-            },
+            select,
         });
 
-        const result = users.map((user) => ({
+        return users.map((user: any) => ({
             id: user.id,
             name: user.name,
             email: user.email,
@@ -36,20 +30,28 @@ class UserService {
                 ? {
                     id: user.userRoles[0].role.id,
                     name: user.userRoles[0].role.name,
+                    slug: user.userRoles[0].role.slug,
+                    description: user.userRoles[0].role.description,
+
+                    permissions: user.userRoles[0].role.rolePermissions.map(
+                        (rp: any) => rp.permission
+                    ),
                 }
                 : null,
         }));
-
-        return id ? result[0] : result;
     }
 
     async createUser({
         name,
         email,
         password,
-        confirmPassword,    
+        confirmPassword,
         roleId,
-    }: CreateUserArgs) {
+    }: CreateUserArgs,
+        info: GraphQLResolveInfo
+    ) {
+
+        const select = getPrismaSelect(info, undefined, userMappings);
 
         if (password !== confirmPassword) {
             throw new Error("Passwords do not match");
@@ -76,35 +78,31 @@ class UserService {
                     create: {
                         role: {
                             connect: {
-                                id: roleId,
+                                id: Number(roleId),
                             },
                         },
                     },
                 },
             },
-            include: {
-                userRoles: {
-                    include: {
-                        role: {
-                            select: {
-                                id: true,
-                                name: true,
-                            },
-                        },
-                    },
-                },
-            },
-        });
+            select,
+        }) as any;
 
         return {
             id: user.id,
             name: user.name,
             email: user.email,
-            role: {
-                id: user.userRoles[0].role.id,
-                name: user.userRoles[0].role.name,
-            },
-        };
+            role: user.userRoles.length
+                ? {
+                    id: user.userRoles[0].role.id,
+                    name: user.userRoles[0].role.name,
+                    slug: user.userRoles[0].role.slug,
+                    description: user.userRoles[0].role.description,
+                    permissions: user.userRoles[0].role.rolePermissions.map(
+                        (rp: any) => rp.permission
+                    ),
+                }
+                : null,
+        }
     }
 
     async updateUser({
@@ -112,7 +110,11 @@ class UserService {
         name,
         email,
         roleId,
-    }: UpdateUserArgs) {
+    }: UpdateUserArgs,
+        info: GraphQLResolveInfo
+    ) {
+
+        const select = getPrismaSelect(info, undefined, userMappings);
 
         const existingUser = await prisma.user.findUnique({
             where: { id },
@@ -156,31 +158,25 @@ class UserService {
 
         const user = await prisma.user.findUnique({
             where: { id },
-            include: {
-                userRoles: {
-                    include: {
-                        role: {
-                            select: {
-                                id: true,
-                                name: true,
-                            },
-                        },
-                    },
-                },
-            },
-        });
+            select,
+        }) as any;
 
         return {
-            id: user!.id,
-            name: user!.name,
-            email: user!.email,
-            role: user!.userRoles.length
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role: user.userRoles.length
                 ? {
-                    id: user!.userRoles[0].role.id,
-                    name: user!.userRoles[0].role.name,
+                    id: user.userRoles[0].role.id,
+                    name: user.userRoles[0].role.name,
+                    slug: user.userRoles[0].role.slug,
+                    description: user.userRoles[0].role.description,
+                    permissions: user.userRoles[0].role.rolePermissions.map(
+                        (rp: any) => rp.permission
+                    ),
                 }
                 : null,
-        };
+        }
     }
 
     async deleteUser(id: number) {

@@ -47,7 +47,7 @@ async function startServer(): Promise<void> {
     app.listen(port, () => {
         console.log(`🚀 Server running at http://${host}:${port}/graphql`);
     });
-}
+};
 
 startServer().catch((error: Error) => {
     console.error("Failed to start server:", error);

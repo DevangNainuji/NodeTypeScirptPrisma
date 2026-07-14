@@ -6,27 +6,27 @@ import {
     GetRoleArgs,
     UpdateRoleArgs,
 } from "../types/roleType.js";
+import { GraphQLResolveInfo } from "graphql";
+import { getPrismaSelect } from "../utils/getPrismaSelect.js";
+import { roleMappings } from "../graphql/mappings/roleMapping.js";
 
 class RoleService {
 
-    async getRoles({ id }: GetRoleArgs) {
+    async getRoles({ id }: GetRoleArgs, info: GraphQLResolveInfo) {
+
+        const select = getPrismaSelect(info, undefined, roleMappings);
+
         const roles = await prisma.role.findMany({
             ...(id && { where: { id } }),
-            include: {
-                rolePermissions: {
-                    include: {
-                        permission: true,
-                    },
-                },
-            },
-        });
+            select,
+        }) as any[];
 
         return roles.map(role => ({
             id: role.id,
             name: role.name,
             slug: role.slug,
             description: role.description,
-            permissions: role.rolePermissions.map(rp => rp.permission),
+            permissions: role.rolePermissions?.map((rp: any) => rp.permission) ?? [],
         }));
     }
 
@@ -34,7 +34,12 @@ class RoleService {
         return await prisma.permission.findMany();
     }
 
-    async createRole({ name, description, permissionIDs, }: CreateRoleArgs) {
+    async createRole(
+        { name, description, permissionIDs, }: CreateRoleArgs,
+        info: GraphQLResolveInfo
+    ) {
+
+        const select = getPrismaSelect(info, undefined, roleMappings);
 
         const slug = slugify(name, {
             lower: true,
@@ -64,25 +69,24 @@ class RoleService {
                     })),
                 },
             },
-            include: {
-                rolePermissions: {
-                    include: {
-                        permission: true,
-                    },
-                },
-            },
-        });
+            select
+        }) as any;
 
         return {
             id: role.id,
             name: role.name,
             slug: role.slug,
             description: role.description,
-            permissions: role.rolePermissions.map(rp => rp.permission),
+            permissions: role.rolePermissions?.map((rp: any) => rp.permission) ?? [],
         };
     }
 
-    async updateRole({ id, name, description, permissionIDs, }: UpdateRoleArgs) {
+    async updateRole(
+        { id, name, description, permissionIDs }: UpdateRoleArgs,
+        info: GraphQLResolveInfo
+    ) {
+
+        const select = getPrismaSelect(info, undefined, roleMappings);
 
         const slug = slugify(name, {
             lower: true,
@@ -110,21 +114,15 @@ class RoleService {
                     })),
                 },
             },
-            include: {
-                rolePermissions: {
-                    include: {
-                        permission: true,
-                    },
-                },
-            },
-        });
+            select,
+        }) as any;
 
         return {
             id: role.id,
             name: role.name,
             slug: role.slug,
             description: role.description,
-            permissions: role.rolePermissions.map(rp => rp.permission),
+            permissions: role.rolePermissions?.map((rp: any) => rp.permission) ?? [],
         };
     }
 

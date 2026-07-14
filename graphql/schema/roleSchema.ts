@@ -16,7 +16,7 @@ type Role {
 }
 
 type Query {
-    getRoles(id: ID): [Role]
+    getRoles(id: Int): [Role]
     getPermissions: [Permission!]
 }
 
@@ -24,17 +24,17 @@ type Mutation {
     createRole(
         name: String!
         description: String
-        permissionIDs: [ID!]!
+        permissionIDs: [Int!]!
     ): Role
 
     updateRole(
-        id: ID!
+        id: Int!
         name: String!
         description: String
-        permissionIDs: [ID!]!
+        permissionIDs: [Int!]!
     ): Role
 
-    deleteRole(id: ID!): String
+    deleteRole(id: Int!): String
 }
 `;
 

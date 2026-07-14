@@ -13,7 +13,7 @@ type User {
 }
 
 type Query {
-    getUsers(id: ID): [User]
+    getUsers(id: Int): [User]
 }
 
 type Mutation {
@@ -22,17 +22,17 @@ type Mutation {
         email: String!,
         password: String!,
         confirmPassword: String!,
-        roleId: ID!
+        roleId: Int!
     ): User
 
     updateUser(
-        id: ID!,
+        id: Int!,   
         name: String!,
         email: String!,
-        roleId: ID!
+        roleId: Int!
     ): User
 
-    deleteUser(id: ID!): String
+    deleteUser(id: Int!): String
 }
 `;
 

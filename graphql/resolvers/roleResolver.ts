@@ -1,3 +1,4 @@
+import { GraphQLResolveInfo } from "graphql";
 import { checkPermission } from "../../middleware/permissionMiddleware.js";
 import roleService from "../../services/roleService.js";
 import {
@@ -10,28 +11,26 @@ import {
 const roleResolver = {
     Query: {
         getRoles: checkPermission("list-roles")(
-            (_: unknown, args: GetRoleArgs) => {
-                return roleService.getRoles(args);
+            (_: unknown, args: GetRoleArgs, __: unknown, info: GraphQLResolveInfo) => {
+                return roleService.getRoles(args, info);
             }
         ),
 
         getPermissions: checkPermission("list-roles")(
-            (_: unknown) => {
-                return roleService.getPermissions();
-            },
+            () => roleService.getPermissions()
         )
     },
 
     Mutation: {
         createRole: checkPermission("add-roles")(
-            (_: unknown, args: CreateRoleArgs) => {
-                return roleService.createRole(args);
+            (_: unknown, args: CreateRoleArgs, __: unknown, info: GraphQLResolveInfo) => {
+                return roleService.createRole(args, info);
             }
         ),
 
         updateRole: checkPermission("edit-roles")(
-            (_: unknown, args: UpdateRoleArgs) => {
-                return roleService.updateRole(args);
+            (_: unknown, args: UpdateRoleArgs, __: unknown, info: GraphQLResolveInfo) => {
+                return roleService.updateRole(args, info);
             }
         ),
 
@@ -40,16 +39,6 @@ const roleResolver = {
                 return roleService.deleteRole(args);
             }
         ),
-    },
-
-    Role: {
-        permissions(parent: any) {
-            if (parent.permissions) {
-                return parent.permissions;
-            }
-
-            return parent.rolePermissions?.map((rp: any) => rp.permission) ?? [];
-        },
     },
 };
 
